@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/Rioba-Ian/task-cli/helpers"
@@ -23,6 +24,8 @@ type Item struct {
 type Items struct {
 	Items []Item `json:"items"`
 }
+
+var listSecondArgs = []string{"done", "todo", "in-progress"}
 
 type Param struct {
 	s []string
@@ -46,17 +49,14 @@ func main() {
 		log.Fatalf("error in decoding json values from bytes %s", err)
 	}
 
-	fmt.Println("Todo items ", todoItems.Items)
-
 	for _, item := range todoItems.Items {
-		fmt.Printf("Item %+v\n", item)
+		fmt.Printf("Items %+v\n", item)
 	}
 
 	defer todosJsonFile.Close()
 
 	userArgs.s = os.Args[1:]
 
-	fmt.Println(userArgs)
 	switch len(userArgs.s) {
 	case 1:
 		fmt.Println("You set in one argument:", userArgs)
@@ -66,10 +66,35 @@ func main() {
 			fmt.Printf("%s", err)
 		}
 
-		fmt.Println(cmd)
-	// case 2:
-	// 	fmt.Println("You entered two arguments", userArgs)
-	// 	fmt.Printf("first one: %s, second %s\n", userArgs.s[0], userArgs.s[1])
+		if helpers.CompareStrings(cmd[0], "list") {
+
+			results, err := userArgs.ListItems(&todoItems)
+
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+
+			fmt.Println(results, "results here")
+		}
+	case 2:
+		// fmt.Println("You entered two arguments", userArgs)
+		_, err := userArgs.ParseArgs()
+
+		if err != nil {
+			fmt.Printf("%s\n", err)
+			return
+		}
+
+		results, err := userArgs.ListItems(&todoItems)
+
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		fmt.Println(results, "results here")
+
 	default:
 		GiveCommands()
 	}
@@ -89,6 +114,10 @@ func (items *Items) GetItems(id int) (*Item, error) {
 	return nil, errors.New("failed to get the todo item")
 }
 
+func (items *Items) GetAllItems() Items {
+	return *items
+}
+
 func GiveCommands() {
 	cmds := "\nYou haven't entered any commands: List of commands\n" +
 		"--------------------------------------------------\n" +
@@ -97,8 +126,12 @@ func GiveCommands() {
 	fmt.Println(cmds)
 }
 
-func (args *Param) ParseArgs() (string, error) {
-	commands := []string{"list", "add", "update", "delete", "mark-in-progress", "mark-done", "in-progress"}
+func (args *Param) ParseArgs() ([]string, error) {
+	allCommands := make(map[string][]string)
+
+	allCommands["list"] = append(allCommands["list"], "list", "list done", "list todo", "list in-progress")
+
+	commands := []string{"list", "add", "update", "delete", "mark-in-progress", "mark-done", "in-progress", "done", "todo", "in-progress"}
 	var trimmedArgs Param
 
 	if len(args.s) == 3 {
@@ -108,18 +141,44 @@ func (args *Param) ParseArgs() (string, error) {
 
 	if len(args.s) == 1 {
 		if helpers.Contains(commands, args.s[0]) {
-			return args.s[0], nil
-
+			firstCmd := strings.Split(args.s[0], " ")
+			return firstCmd, nil
 		}
-		return args.s[0], errors.New("you didn't enter a valid command")
+		return args.s, errors.New("you didn't enter a valid command")
 	} else if len(args.s) == 2 {
-		for k := range args.s {
-			for n := range commands {
-				if args.s[k] != commands[n] {
-					return args.s[k], errors.New("you didn't enter a valid command")
-				}
-			}
+		first, second := args.s[0], args.s[1]
+		var combined []string
+
+		if helpers.Contains(commands, first) && helpers.Contains(commands, second) {
+			combined = append(combined, first, second)
+			return combined, nil
 		}
+
+		return nil, errors.New("you might have entered one or two invalid commands ->")
+
 	}
-	return "", nil
+	return nil, nil
+}
+
+func (args *Param) ListItems(items *Items) (*Items, error) {
+	list, secondListArg := args.s[0], ""
+
+	if len(args.s) > 1 {
+		secondListArg = args.s[1]
+	}
+
+	if list == "list" && len(args.s) == 1 {
+		// do the read all operation
+		return items, nil
+	}
+
+	if !helpers.ExistsInListCmds(listSecondArgs, secondListArg) {
+		return nil, errors.New("second argument used does not exist, use todo, done or in-progress")
+	}
+
+	if helpers.CompareStrings("done", secondListArg) {
+		fmt.Println("should return all done items")
+		return items, nil
+	}
+	return nil, nil
 }
