@@ -49,54 +49,23 @@ func main() {
 		log.Fatalf("error in decoding json values from bytes %s", err)
 	}
 
-	for _, item := range todoItems.Items {
-		fmt.Printf("Items %+v\n", item)
-	}
-
 	defer todosJsonFile.Close()
 
 	userArgs.s = os.Args[1:]
 
-	switch len(userArgs.s) {
-	case 1:
-		fmt.Println("You set in one argument:", userArgs)
-		cmd, err := userArgs.ParseArgs()
+	if len(userArgs.s) < 1 {
+		GiveCommands()
+	}
 
-		if err != nil {
-			fmt.Printf("%s", err)
-		}
-
-		if helpers.CompareStrings(cmd[0], "list") {
-
-			results, err := userArgs.ListItems(&todoItems)
-
-			if err != nil {
-				log.Fatal(err)
-				return
+	if len(userArgs.s) == 1 {
+		if helpers.CompareStrings(userArgs.s[0], "list") {
+			results := todoItems.GetAllItems()
+			fmt.Println("\nTodo Items List:")
+			for _, item := range results.Items {
+				fmt.Printf("\n%+v\n\n", item)
 			}
 
-			fmt.Println(results, "results here")
 		}
-	case 2:
-		// fmt.Println("You entered two arguments", userArgs)
-		_, err := userArgs.ParseArgs()
-
-		if err != nil {
-			fmt.Printf("%s\n", err)
-			return
-		}
-
-		results, err := userArgs.ListItems(&todoItems)
-
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-
-		fmt.Println(results, "results here")
-
-	default:
-		GiveCommands()
 	}
 
 	currentTime := time.Now().Format("2006-01-02 15:04:05")
@@ -104,18 +73,8 @@ func main() {
 
 }
 
-func (items *Items) GetItems(id int) (*Item, error) {
-	for _, item := range items.Items {
-		if item.ID == id {
-			return &item, nil
-		}
-	}
-
-	return nil, errors.New("failed to get the todo item")
-}
-
-func (items *Items) GetAllItems() Items {
-	return *items
+func (items Items) GetAllItems() Items {
+	return items
 }
 
 func GiveCommands() {
