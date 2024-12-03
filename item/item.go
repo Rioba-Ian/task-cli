@@ -43,6 +43,12 @@ func (args *Param) ListItems() (*Items, error) {
 	return nil, nil
 }
 
+func (items *Items) AddItem(newTodo Item) (int, error) {
+	items.Items = append(items.Items, newTodo)
+
+	return 1, nil
+}
+
 /*
 case len==1 : fmt.Println("You set in one argument:", userArgs)
 		cmd, err := userArgs.ParseArgs()

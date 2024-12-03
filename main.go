@@ -64,7 +64,49 @@ func main() {
 			for _, item := range results.Items {
 				fmt.Printf("\n%+v\n\n", item)
 			}
+			return
 
+		} else if helpers.CompareStrings(userArgs.s[0], "add") {
+			fmt.Printf("\nEnter todo Items e.g add 'Go Shopping'\n")
+			return
+		}
+	}
+
+	if len(userArgs.s) == 2 {
+		firstVar, secondVar := userArgs.s[0], userArgs.s[1]
+
+		if helpers.CompareStrings(firstVar, "list") {
+
+			switch secondVar {
+			case "done":
+				fmt.Println("Get all done todo items")
+			case "todo":
+				fmt.Println("Get all with status todo")
+			}
+
+		}
+
+		if helpers.CompareStrings(firstVar, "add") {
+			fmt.Println(secondVar)
+			newTodoItem := Item{
+				ID:        len(todoItems.Items) + 1,
+				Task:      secondVar,
+				Status:    "todo",
+				CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
+				UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
+			}
+
+			fmt.Println(newTodoItem, "\nnewTodoItem has been added.")
+
+			todoItems.AddItem(newTodoItem)
+
+			fmt.Println("\nAll items are: ")
+			results := todoItems.GetAllItems()
+			fmt.Println("\nTodo Items List:")
+			for _, item := range results.Items {
+				fmt.Printf("\n%+v\n\n", item)
+			}
+			return
 		}
 	}
 
@@ -75,6 +117,12 @@ func main() {
 
 func (items Items) GetAllItems() Items {
 	return items
+}
+
+func (items *Items) AddItem(newTodo Item) (int, error) {
+	items.Items = append(items.Items, newTodo)
+
+	return 1, nil
 }
 
 func GiveCommands() {
