@@ -2,6 +2,7 @@ package item
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/Rioba-Ian/task-cli/helpers"
 )
@@ -46,7 +47,9 @@ func (args *Param) ListItems() (*Items, error) {
 func (items *Items) AddItem(newTodo Item) (int, error) {
 	items.Items = append(items.Items, newTodo)
 
-	return 1, nil
+	fmt.Println(newTodo, "item >>>>>>")
+
+	return newTodo.ID, nil
 }
 
 /*

@@ -87,7 +87,6 @@ func main() {
 		}
 
 		if helpers.CompareStrings(firstVar, "add") {
-			fmt.Println(secondVar)
 			newTodoItem := Item{
 				ID:        len(todoItems.Items) + 1,
 				Task:      secondVar,
@@ -96,16 +95,11 @@ func main() {
 				UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
 			}
 
-			fmt.Println(newTodoItem, "\nnewTodoItem has been added.")
-
-			todoItems.AddItem(newTodoItem)
-
-			fmt.Println("\nAll items are: ")
-			results := todoItems.GetAllItems()
-			fmt.Println("\nTodo Items List:")
-			for _, item := range results.Items {
-				fmt.Printf("\n%+v\n\n", item)
+			newTodoId, err := todoItems.AddItem(newTodoItem)
+			if err != nil {
+				log.Fatal(err)
 			}
+			fmt.Printf("\nTask added successfully (ID: %d)\n", newTodoId)
 			return
 		}
 	}
@@ -122,7 +116,7 @@ func (items Items) GetAllItems() Items {
 func (items *Items) AddItem(newTodo Item) (int, error) {
 	items.Items = append(items.Items, newTodo)
 
-	return 1, nil
+	return newTodo.ID, nil
 }
 
 func GiveCommands() {
