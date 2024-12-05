@@ -1,18 +1,1 @@
-{
-    "items": [
-        {
-            "id": 1,
-            "task": "Buy milk",
-            "status": "COMPLETED",
-            "createdAt": "28-11-2024",
-            "UpdatedAt": "28-11-2024"
-        },
-        {
-            "id": 2,
-            "task": "Buy groceries",
-            "status": "todo",
-            "createdAt": "2024-12-05 11:19:20",
-            "UpdatedAt": "2024-12-05 11:19:20"
-        }
-    ]
-}
+{"items":[{"id":1,"task":"Buy milk","status":"done","createdAt":"28-11-2024","UpdatedAt":"28-11-2024"},{"id":2,"task":"Buy groceries","status":"todo","createdAt":"2024-12-05 11:19:20","UpdatedAt":"2024-12-05 11:19:20"},{"id":3,"task":"Go for afternoon walk","status":"todo","createdAt":"2024-12-05 12:05:18","UpdatedAt":"2024-12-05 12:05:18"}]}

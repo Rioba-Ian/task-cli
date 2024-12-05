@@ -77,11 +77,19 @@ func main() {
 
 		if helpers.CompareStrings(firstVar, "list") {
 
-			switch secondVar {
-			case "done":
-				fmt.Println("Get all done todo items")
-			case "todo":
-				fmt.Println("Get all with status todo")
+			listByStatusItems, err := todoItems.GetItemsByStatus(secondVar)
+
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+
+			if listByStatusItems != nil {
+				fmt.Printf("\nThe items by %s status:\n", secondVar)
+				for _, item := range listByStatusItems.Items {
+					fmt.Printf("\n%+v\n", item)
+				}
+				return
 			}
 
 		}
@@ -139,6 +147,27 @@ func saveVideos(items Items) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (items Items) GetItemsByStatus(status string) (*Items, error) {
+	var itemsByStatus Items
+	validStatuses := []string{"todo", "in-progress", "done"}
+
+	if !helpers.ExistsInListCmds(validStatuses, status) {
+		return nil, errors.New("you entered an invalid second list argument")
+	}
+
+	for _, item := range items.Items {
+		if item.Status == status {
+			itemsByStatus.Items = append(itemsByStatus.Items, item)
+		}
+	}
+
+	if len(itemsByStatus.Items) == 0 {
+		return nil, nil
+	}
+
+	return &itemsByStatus, nil
 }
 
 func GiveCommands() {
