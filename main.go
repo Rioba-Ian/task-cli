@@ -100,6 +100,11 @@ func main() {
 				log.Fatal(err)
 			}
 			fmt.Printf("\nTask added successfully (ID: %d)\n", newTodoId)
+
+			// fmt.Println("The new file is:")
+			// for _, item := range todoItems.Items {
+			// 	fmt.Printf("\n%+v\n", item)
+			// }
 			return
 		}
 	}
@@ -116,7 +121,24 @@ func (items Items) GetAllItems() Items {
 func (items *Items) AddItem(newTodo Item) (int, error) {
 	items.Items = append(items.Items, newTodo)
 
+	// we save the file
+	saveVideos(*items)
+
 	return newTodo.ID, nil
+}
+
+func saveVideos(items Items) {
+	itemsBytes, err := json.Marshal(items)
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.WriteFile("items.json", itemsBytes, 0644)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func GiveCommands() {
